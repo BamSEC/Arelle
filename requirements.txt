@@ -1,2 +1,4 @@
 lxml==4.6.3
 openPyXL==2.3.3
+isodate==0.6.0
+pg8000==1.20.0
