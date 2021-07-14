@@ -52,11 +52,12 @@ setup_requires = ['lxml'] # ,'Crypto.Cipher']
 # this also allows installation directly from the github repository 
 # (using 'pip install -e git+git://github.com/rheimbuchArelle.git#egg=Arelle') 
 # and the install_requires packages are auto-installed as well.
-install_requires = ['lxml', 'isodate', 'openpyxl'] # , 'pycountry']
+install_requires = ['lxml', 'isodate', 'openpyxl', 'pg8000'] # , 'pycountry']
 options = {}
 scripts = []
 cxFreezeExecutables = []
 cmdclass = {}
+package_data = {}
 
 # Files that should not be passed through 3to2 conversion
 # in python 2.7 builds
@@ -230,6 +231,10 @@ if sys.platform in ('darwin', 'linux2', 'linux', 'sunos5'):
         '.',  # note that new setuptools finds plugin and lib unwanted stuff
         exclude=['*.plugin.*', '*.lib.*']
     )
+    packages.append('arelle.plugin.xbrlDB')
+    package_data = {
+        "arelle.plugin.xbrlDB": ['sql/public/xbrlPublicPostgresDB.ddl']
+    }
 
     dataFiles = []
     includeFiles = [
@@ -455,6 +460,7 @@ setup(
     cmdclass=cmdclass,
     # include_package_data=True,  # note: this uses MANIFEST.in
     packages=packages,
+    package_data=package_data,
     data_files=dataFiles,
     platforms=['OS Independent'],
     license='Apache-2',
