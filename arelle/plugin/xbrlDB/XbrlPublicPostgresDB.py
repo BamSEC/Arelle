@@ -309,7 +309,7 @@ class XbrlPostgresDatabaseConnection(SqlDbConnection):
         self.documentIds.update(self.existingDocumentIds)
         table = self.getTable('accession_document_association', 'accession_document_association_id', 
                               ('accession_id','document_id'), 
-                              ('document_id',), 
+                              ('accession_id', 'document_id',),
                               tuple((self.accessionId, docId) 
                                     for docId in self.documentIds.values()),
                               checkIfExisting=True)
