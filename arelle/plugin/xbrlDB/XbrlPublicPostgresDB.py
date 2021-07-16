@@ -52,12 +52,12 @@ from .SqlDb import XPDBException, isSqlConnection, SqlDbConnection
 
 def insertIntoDB(modelXbrl, 
                  user=None, password=None, host=None, port=None, database=None, timeout=None,
-                 product="postgres", rssItem=None, **kwargs):
+                 product="postgres", rssItem=None, otherData=None, **kwargs):
     xpgdb = None
     try:
         xpgdb = XbrlPostgresDatabaseConnection(modelXbrl, user, password, host, port, database, timeout, product)
         xpgdb.verifyTables()
-        xpgdb.insertXbrl(rssItem=rssItem)
+        xpgdb.insertXbrl(rssItem=rssItem, otherData=otherData)
         xpgdb.close()
     except Exception as ex:
         if xpgdb is not None:
@@ -124,7 +124,7 @@ class XbrlPostgresDatabaseConnection(SqlDbConnection):
                                 _("The following tables are missing, suggest reinitializing database schema: %(missingTableNames)s"),
                                 missingTableNames=', '.join(t for t in sorted(missingTables))) 
             
-    def insertXbrl(self, rssItem):
+    def insertXbrl(self, rssItem, otherData):
         try:
             # must also have default dimensions loaded
             from arelle import ValidateXbrlDimensions
@@ -135,7 +135,7 @@ class XbrlPostgresDatabaseConnection(SqlDbConnection):
             self.identifyConceptsUsed()
             
             startedAt = time.time()
-            self.insertAccession(rssItem)
+            self.insertAccession(rssItem, otherData)
             self.insertUris()
             self.insertQnames()
             self.insertNamespaces()
@@ -158,7 +158,7 @@ class XbrlPostgresDatabaseConnection(SqlDbConnection):
             self.showStatus("DB insertion failed due to exception", clearAfter=5000)
             raise
             
-    def insertAccession(self, rssItem):
+    def insertAccession(self, rssItem, otherData):
         self.accessionId = "(TBD)"
         self.showStatus("insert accession")
         if rssItem is None:
@@ -173,7 +173,7 @@ class XbrlPostgresDatabaseConnection(SqlDbConnection):
                                     0,  # NOT NULL
                                     self.modelXbrl.modelDocument.creationSoftwareComment,
                                     self.modelXbrl.uri,
-                                    str(int(_time))  # NOT NULL
+                                    str(otherData.get('filing_accession_number', int(_time)))  # NOT NULL
                                     ),),
                                   checkIfExisting=True,
                                   returnExistenceStatus=True)
